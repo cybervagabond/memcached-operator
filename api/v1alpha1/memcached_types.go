@@ -36,8 +36,6 @@ type MemcachedStatus struct {
 	Nodes []string `json:"nodes"`
 }
 
-
-
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 

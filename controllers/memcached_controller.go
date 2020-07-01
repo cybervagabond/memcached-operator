@@ -18,15 +18,14 @@ package controllers
 
 import (
 	"context"
+	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"reflect"
-
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -67,7 +66,7 @@ func (r *MemcachedReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Check if the deployment already exists, if not - create a new one
 	found := &appsv1.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: memcached.Name, Namespace: memcached.Namespace}, found)
+	err = r.Get(ctx, types.NamespacedName{Name: memcached.Name, Namespace: memcached.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		dep := r.deploymentForMemcached(memcached)
@@ -102,7 +101,7 @@ func (r *MemcachedReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(memcached.Namespace),
-		client.MatchingLabels(labelsForMecached(memcached.Name)),
+		client.MatchingLabels(labelsForMemcached(memcached.Name)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
 		log.Error(err, "Failed to list pods", "Memcached.Namespace", memcached.Namespace, "Memcached.Name", memcached.Name)
@@ -164,7 +163,7 @@ func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached)
 
 // labelsForMemcached returns the labels for selecting the resources
 // belonging to the given memcached CR name.
-func labelsForMecached(name string) map[string]string {
+func labelsForMemcached(name string) map[string]string {
 	return map[string]string{"app": "memcached", "memcached_cr": name}
 }
 
